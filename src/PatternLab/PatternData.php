@@ -116,14 +116,13 @@ class PatternData {
 		if (!is_dir(Config::getOption("patternSourceDir"))) {
 			Console::writeError("having patterns is important. please make sure you've installed a starterkit and/or that ".Console::getHumanReadablePath(Config::getOption("patternSourceDir"))." exists...");
 		}
-		$patternObjects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(Config::getOption("patternSourceDir")), \RecursiveIteratorIterator::SELF_FIRST);
-		$patternObjects->setFlags(\FilesystemIterator::SKIP_DOTS);
+
+		$patternSourceDir = Config::getOption("patternSourceDir");
+		$patternObjects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($patternSourceDir, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS | \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
 
 		// sort the returned objects
 		$patternObjects = iterator_to_array($patternObjects);
 		ksort($patternObjects);
-
-		$patternSourceDir = Config::getOption("patternSourceDir");
 
 		foreach ($patternObjects as $name => $object) {
 
@@ -181,17 +180,20 @@ class PatternData {
 		$event = new PatternDataEvent($options);
 		$dispatcherInstance->dispatch("patternData.lineageHelperEnd",$event);
 
+
+		// `PatternStateHelper` is deprecated. It was for adding state to all patterns in the lineage of the pattern with state and that is no longer needed. Commenting out use and deprecating class in case there's a use I haven't figured out.
+
 		// dispatch that the pattern state helper is about to start
-		$event = new PatternDataEvent($options);
-		$dispatcherInstance->dispatch("patternData.patternStateHelperStart",$event);
+//		$event = new PatternDataEvent($options);
+//		$dispatcherInstance->dispatch("patternData.patternStateHelperStart",$event);
 
 		// using the lineage info update the pattern states on PatternData::$store
-		$patternStateHelper      = new PatternStateHelper();
-		$patternStateHelper->run();
+//		$patternStateHelper      = new PatternStateHelper();
+//		$patternStateHelper->run();
 
 		// dispatch that the pattern state helper is ended
-		$event = new PatternDataEvent($options);
-		$dispatcherInstance->dispatch("patternData.patternStateHelperEnd",$event);
+//		$event = new PatternDataEvent($options);
+//		$dispatcherInstance->dispatch("patternData.patternStateHelperEnd",$event);
 
 		// set-up code pattern paths
 		$ppdExporter             = new PatternPathSrcExporter();

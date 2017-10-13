@@ -47,8 +47,20 @@ class PatternPartialsExporter extends \PatternLab\PatternData\Exporter {
 		$suffixRendered     =	Config::getOption("outputFileSuffixes.rendered");
 		
 		foreach ($this->store as $patternStoreKey => $patternStoreData) {
-			
-			if (($patternStoreData["category"] == "pattern") && isset($patternStoreData["hidden"]) && (!$patternStoreData["hidden"]) && (!$patternStoreData["noviewall"]) && ($patternStoreData["depth"] > 1) && (!in_array($patternStoreData["type"],$this->styleGuideExcludes))) {
+
+      // Docs for patternTypes (i.e. `atoms.md`), don't have these rules and need them to pass below conditionals
+		  if (
+		      !isset($patternStoreData['depth'])
+          && !isset($patternStoreData['hidden'])
+          && !isset($patternStoreData['noviewall'])
+      ) {
+		    $patternStoreData["hidden"] = false;
+		    $patternStoreData["noviewall"] = false;
+		    $patternStoreData["depth"] = 0;
+      }
+      $canShow = isset($patternStoreData["hidden"]) && (!$patternStoreData["hidden"]) && (!$patternStoreData["noviewall"]);
+
+      if (($patternStoreData["category"] == "pattern") && $canShow && ($patternStoreData["depth"] > 1) && (!in_array($patternStoreData["type"],$this->styleGuideExcludes))) {
 				
 				if ((($patternStoreData["type"] == $type) && empty($subtype)) || (empty($type) && empty($subtype)) || (($patternStoreData["type"] == $type) && ($patternStoreData["subtype"] == $subtype))) {
 					
@@ -101,8 +113,25 @@ class PatternPartialsExporter extends \PatternLab\PatternData\Exporter {
 					$patternPartials[] =  $patternPartialData;
 					
 				}
-				
-			}
+
+      } else if (($patternStoreData["category"] == "pattern") && $canShow && (isset($patternStoreData["full"]) && ($type === $patternStoreData["full"] || $type === ""))) {
+        // This is for `patternType` docs. Given this structure:
+        // - _patterns/
+        //   - atoms/
+        //     - forms/
+        //   - atoms.md
+        // This will take the contents of `atoms.md` and place at top of "Atoms > View All"
+
+        $patternPartialData = array();
+        // Getting the name from md's `title: My Name` works here, as does the link, but it doesn't make sense to link to the view you are already on. Plus you can just do the title in the MD doc. Keeping here for now in case it's wanted later.
+        // $patternPartialData["patternName"] = isset($patternStoreData["nameClean"]) ? $patternStoreData["nameClean"] : '';
+        // $patternPartialData["patternLink"] = $patternStoreData["full"] . "/index.html";
+
+        $patternPartialData["patternSectionSubtype"] = true;
+        $patternPartialData["patternDesc"] = isset($patternStoreData["desc"]) ? $patternStoreData["desc"] : "";
+
+        $patternPartials[] = $patternPartialData;
+      }
 			
 		}
 		

@@ -80,10 +80,26 @@ class DocumentationRule extends \PatternLab\PatternData\Rule {
 								  "meta"       => $yaml,
 								  "full"       => $doc);
 
+		// can set `title: My Cool Pattern` instead of lifting from file name
 		if (isset($title)) {
 			$patternStoreData["nameClean"] = $title;
 		}
-		
+
+		$availableKeys = [
+      'state', // can use `state: inprogress` instead of `button@inprogress.mustache`
+      'hidden', // setting to `true`, removes from menu and viewall, which is same as adding `_` prefix
+      'noviewall', // setting to `true`, removes from view alls but keeps in menu, which is same as adding `-` prefix
+      'order', // @todo implement order
+      'tags', // not implemented, awaiting spec approval and integration with styleguide kit. adding to be in sync with Node version.
+      'links', // not implemented, awaiting spec approval and integration with styleguide kit. adding to be in sync with Node version.
+    ];
+
+		foreach ($availableKeys as $key) {
+      if (isset($yaml[$key])) {
+        $patternStoreData[$key] = $yaml[$key];
+      }
+    }
+
 		// if the pattern data store already exists make sure this data overwrites it
 		$patternStoreData = (PatternData::checkOption($patternStoreKey)) ? array_replace_recursive(PatternData::getOption($patternStoreKey),$patternStoreData) : $patternStoreData;
 		PatternData::setOption($patternStoreKey, $patternStoreData);
