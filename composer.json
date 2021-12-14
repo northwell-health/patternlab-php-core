@@ -1,5 +1,5 @@
 {
-  "name":             "pattern-lab/core",
+  "name":             "northwell-pattern-lab/core",
   "description":      "The core functionality for Pattern Lab.",
   "keywords":         ["pattern lab", "styleguide", "style guide", "atomic", "atomic design"],
   "homepage":         "http://patternlab.io",
